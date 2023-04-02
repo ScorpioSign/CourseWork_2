@@ -6,11 +6,6 @@ public enum Type {
         this.typeTask = typeTask;
     }
 
-    @Override
-    public String toString() {
-        return "Тип задачи: " + typeTask;
-    }
-
     public String getTypeTask() {
         return typeTask;
     }

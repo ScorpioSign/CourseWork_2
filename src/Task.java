@@ -1,25 +1,24 @@
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.Period;
 import java.util.Objects;
 
-public class Task {
+public abstract class Task {
     private static int counter;
     private String title;
     private final Type type;
     private final int id;
     private final LocalDateTime dateTime;
     private String description;
-    private final Repeatability repeatability;
 
-    public Task(String title, Type type, String description, Repeatability repeatability) {
+
+    public Task(String title, String description, Type type) {
         counter++;
         this.title = title;
         this.type = type;
         this.id = counter;
         this.dateTime = LocalDateTime.now();
         this.description = description;
-        this.repeatability = repeatability;
+
     }
 
     public String getTitle() {
@@ -42,9 +41,6 @@ public class Task {
         return description;
     }
 
-    public Repeatability getRepeatability() {
-        return repeatability;
-    }
 
     public void setTitle(String title) {
         this.title = title;
@@ -54,53 +50,42 @@ public class Task {
         this.description = description;
     }
 
+    public LocalDateTime getLocalDateTime() {
+        return dateTime;
+    }
+
+    public abstract boolean appearsIn(LocalDate dateTime);
+
+    public abstract LocalDate getNextDate(LocalDateTime dateTime);
+
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Task task = (Task) o;
-        return id == task.id && title.equals(task.title) && type == task.type && dateTime.equals(task.dateTime) && description.equals(task.description) && repeatability == task.repeatability;
+        return id == task.id && Objects.equals(title, task.title) && Objects.equals(description, task.description) && type == task.type && Objects.equals(dateTime, task.dateTime);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(title, type, id, dateTime, description, repeatability);
+        return Objects.hash(title, type, id, dateTime, description);
     }
 
     @Override
     public String toString() {
         return "\nЗадача №" + id + " " + title +
-                "\n" + type +
-                "\nОписание задачи: " + description +
-                "\n" + repeatability +
-                "\nДата создания: " + dateTime + "\n";
-    }
+                "\n   " + type.getTypeTask() +
+                "\n   Описание задачи: " + description +
 
-
-    public boolean appearsIn(LocalDate date) {
-        Period p = Period.between(date, dateTime.toLocalDate());
-        boolean b = false;
-        switch (repeatability) {
-            case DAILY_TASK -> b = true;
-
-            case WEEKLY_TASK -> b = date.getDayOfWeek() == dateTime.getDayOfWeek();
-
-            case YEARLY_TASK -> b = p.getDays() == 0 && p.getMonths() == 0;
-
-            case MONTHLY_TASK -> b = p.getDays() == 0;
-
-            case ONE_TIME_TASK -> b = (date.compareTo(this.getDate()) == 0);
-
-        }
-        return b;
+                "\n   Дата создания: " + dateTime + "\n";
     }
 
 
     public LocalDate getDate() {
         return dateTime.toLocalDate();
     }
-
-    public Boolean predicate(LocalDate date) {
-        return (this.appearsIn(date) && !date.isBefore(this.getDate()));
-    }
 }
+
+
+
